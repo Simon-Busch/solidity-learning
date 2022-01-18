@@ -3,6 +3,7 @@ pragma solidity ^0.8.3;
 
 contract Immutable {
   // coding convention to uppercase constant variables
+  //save gas to declare immutable var
   address public immutable MY_ADDRESS;
   uint public immutable MY_UINT;
 
