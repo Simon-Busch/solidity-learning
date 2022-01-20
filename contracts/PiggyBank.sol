@@ -1,4 +1,4 @@
-// SPD-License-Identifier: MIT
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.3;
 // anyone can send ETH to the contract BUT only owner can withdraw
 contract PiggyBank {
