@@ -30,7 +30,8 @@ contract FunctionExample {
     require(_amount <= balanceReceived[msg.sender], "not enough ether bro");
     assert(balanceReceived[msg.sender] >= balanceReceived[msg.sender] - _amount);
     balanceReceived[msg.sender] -= _amount;
-    _to.call{value:_amount}("");
+    (bool success, ) = _to.call{value:_amount}("");
+    require(success, "withdraw failed");
   }
   
   // example of fallback function

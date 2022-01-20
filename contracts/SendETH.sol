@@ -53,7 +53,8 @@ contract SendEther {
   function sendViaCall(address payable _to) external payable {
     // Call returns a boolean value indicating success or failure.
     // This is the current recommended method to use.
-    (bool sent, bytes memory data) = _to.call{value: msg.value}("");
+    // (bool sent, bytes memory data)
+    (bool sent, ) = _to.call{value: msg.value}("");
     require(sent, "Failed to send Ether");
   }
 

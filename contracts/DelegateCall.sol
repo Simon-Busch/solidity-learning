@@ -42,7 +42,7 @@ contract DelegateCall {
     // _test.delegatecall(abi.encodeWithSignature("setVars(uint256)", _num));
     // other way to call 
     // beter for reusability because we don't write the string
-    (bool success, bytes memory data)  = _test.delegatecall(abi.encodeWithSelector(TestDelegateCall.setVars.selector, _num));
+    (bool success, )  = _test.delegatecall(abi.encodeWithSelector(TestDelegateCall.setVars.selector, _num));
     require(success, "delegate call failed");
   }
 }

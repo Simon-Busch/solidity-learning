@@ -30,13 +30,15 @@ contract Mapping {
   function withdrawMoney(address payable _to, uint _amount) public {
     require(balanceReceived[msg.sender].totalBalance >= _amount, "not enough funds");
     balanceReceived[msg.sender].totalBalance -= _amount;
-    _to.call{value: _amount}("");
+    (bool success, ) = _to.call{value: _amount}("");
+    require(success, "withdraw failed");
   }
   
   //  you can only withdraw what you've sent already
   function withdrawAllMoney (address payable _to) public {
     uint balanceToSend = balanceReceived[msg.sender].totalBalance;
     balanceReceived[msg.sender].totalBalance = 0;
-    _to.call{value: balanceToSend}("");
+    (bool success, ) = _to.call{value: balanceToSend}("");
+    require(success, "withdraw all money failed");
   }
 }
