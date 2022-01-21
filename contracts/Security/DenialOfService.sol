@@ -24,7 +24,6 @@ contract KingOfEther {
     (bool success, ) = msg.sender.call{value: amount}("");
     require(success, "withdraw failed");
   }
-
 }
 
 
