@@ -26,6 +26,7 @@ contract DutchAuction {
   uint public immutable startingPrice;
   uint public immutable startAt;
   uint public immutable expiresAt;
+  // determine the rate at which price descreses from starting price
   uint public immutable discountRate;
 
   constructor(
@@ -47,7 +48,7 @@ contract DutchAuction {
   }
 
   function getPrice() public view returns (uint) {
-    uint timeElapsed = block.timestamp - startAt;
+    uint timeElapsed = block.timestamp - startAt
     uint discount = discountRate * timeElapsed;
     return startingPrice - discount;
   }
