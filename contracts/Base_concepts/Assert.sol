@@ -11,24 +11,20 @@ contract Account {
 
     // balance + _amount does not overflow if balance + _amount >= balance
     require(newBalance >= oldBalance, "Overflow");
-
     balance = newBalance;
-
     assert(balance >= oldBalance);
   }
 
   function withdraw(uint _amount) public {
     uint oldBalance = balance;
-
     // balance - _amount does not underflow if balance >= _amount
     require(balance >= _amount, "Underflow");
 
     if (balance < _amount) {
-        revert("Underflow");
+      revert("Underflow");
     }
 
     balance -= _amount;
-
     assert(balance <= oldBalance);
   }
 }
