@@ -48,7 +48,7 @@ contract DutchAuction {
   }
 
   function getPrice() public view returns (uint) {
-    uint timeElapsed = block.timestamp - startAt
+    uint timeElapsed = block.timestamp - startAt;
     uint discount = discountRate * timeElapsed;
     return startingPrice - discount;
   }
