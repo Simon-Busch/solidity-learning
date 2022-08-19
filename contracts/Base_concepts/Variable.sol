@@ -14,6 +14,7 @@ contract Variables {
   // State variables are stored on the blockchain.
   string public text = "Hello";
   uint public num = 123;
+  // uint default is uint256 under the hood
 
   function doSomething() public view {
     // Local variables are not saved to the blockchain.
