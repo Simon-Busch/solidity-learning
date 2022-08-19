@@ -1,7 +1,7 @@
 // I'm a comment!
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.8;
+pragma solidity ^0.8.8;
 // pragma solidity ^0.8.0;
 // pragma solidity >=0.8.0 <0.9.0;
 
@@ -18,6 +18,7 @@ contract SimpleStorage {
 
   mapping(string => uint256) public nameToFavoriteNumber;
 
+  // virtual keyword needs to be added for a function that is overridable 
   function store(uint256 _favoriteNumber) public virtual {
     favoriteNumber = _favoriteNumber;
   }
