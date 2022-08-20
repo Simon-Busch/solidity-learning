@@ -1,16 +1,16 @@
 import { ethers } from "ethers";
 import * as fs from "fs-extra";
+import "dotenv/config";
 
 async function main() {
   console.log("starting script");
   // http://127.0.0.1:7545 -- ganache RPC server
-  const provider = new ethers.providers.JsonRpcProvider(
-    "http://127.0.0.1:7545"
-  ); // connect to ganache
-  const wallet = new ethers.Wallet(
-    "9a0f592a1512fbcadaeb03c3eac6e69638dbbb2db5f29dd43fc9c0b707540d84",
-    provider
-  ); // private key from ganache wallet
+  const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL!); // connect to ganache
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider); // private key from ganache wallet
+  // const encryptedJson = fs.readFileSync("./.encryptedKey.json", "utf8");
+  // let wallet = ethers.Wallet.fromEncryptedJsonSync(encryptedJson, process.env.PRIVATE_KEY_PASSWORD!);
+  // console.log(wallet)
+  // wallet = await wallet.connect(provider);
   const abi = fs.readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf8");
   const binary = fs.readFileSync(
     "./SimpleStorage_sol_SimpleStorage.bin",
@@ -44,7 +44,7 @@ async function main() {
   const transactionResponse = await contract.store("7"); // pass variable as strings
   const transactionReceipt = await transactionResponse.wait(1);
   const updatedFavoriteNumber = await contract.retrieve();
-  console.log(`Updated favorite number: ${updatedFavoriteNumber}`)
+  console.log(`Updated favorite number: ${updatedFavoriteNumber}`);
 }
 
 main()
