@@ -4,6 +4,7 @@ import { assert, expect } from "chai";
 import { ethers } from "hardhat";
 import { SimpleStorage } from "../typechain-types";
 
+
 describe("SimpleStorage contract", function () {
   let SimpleStorageFactory;
   let simpleStorage: SimpleStorage;
