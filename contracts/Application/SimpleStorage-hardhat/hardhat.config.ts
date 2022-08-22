@@ -1,6 +1,11 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 require("dotenv").config();
+// require('./tasks/accounts');
+// require('./tasks/block-number');
+import './tasks/accounts';
+import "./tasks/block-number";
+
 
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL!;
 const PRIVATE_KEY = process.env.PRIVATE_KEY!;
