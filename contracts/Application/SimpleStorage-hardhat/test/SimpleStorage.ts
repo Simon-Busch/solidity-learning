@@ -2,11 +2,11 @@ import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { assert, expect } from "chai";
 import { ethers } from "hardhat";
-import { SimpleStorage } from "../typechain-types";
+import { SimpleStorage, SimpleStorage__factory } from "../typechain-types";
 
 
 describe("SimpleStorage contract", function () {
-  let SimpleStorageFactory;
+  let SimpleStorageFactory: SimpleStorage__factory;
   let simpleStorage: SimpleStorage;
   this.beforeEach(async function () {
     SimpleStorageFactory = await ethers.getContractFactory("SimpleStorage");

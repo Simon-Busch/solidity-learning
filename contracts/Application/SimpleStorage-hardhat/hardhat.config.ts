@@ -1,9 +1,10 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-require("dotenv").config();
+import"dotenv/config";
 import "./tasks/accounts";
 import "./tasks/block-number";
 import "hardhat-gas-reporter";
+import "solidity-coverage"; // check lines covered by tests -- yarn hardhat coverage
 
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL!;
 const PRIVATE_KEY = process.env.PRIVATE_KEY!;
