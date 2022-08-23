@@ -1,0 +1,41 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/FundMe.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.8;\n\nimport \"./PriceConverter.sol\";\n// at the time of writing, goerli network to be selected\n\nerror NotOwner();\n\ncontract FundMe {\n    using PriceConverter for uint256;\n    uint256 public constant MINIMUM_USD = 50 * 1e18; // 1 * 10 ** 18\n    //using constant for var that are set only 1 time make it more gas efficient\n    // initial deploy 831,183\n    // using constant 811,025\n    address public immutable i_owner; // convention to name immutable var like this\n\n    AggregatorV3Interface public priceFeed;\n\n    constructor(address priceFeedAddress) {\n        i_owner = msg.sender;\n        priceFeed = AggregatorV3Interface(priceFeedAddress);\n    }\n\n    modifier onlyOwner {\n        // require(msg.sender == i_owner, \"you are not the owner\");\n        // string consume more gas. Custom error use less\n        if (msg.sender != i_owner) revert NotOwner();\n        _;\n    }\n\n    address[] public funders;\n    mapping(address => uint256) public addressToAmountFunded;\n\n    function fund() public payable {\n        // 1.How to send ETH to this contract ?\n        // require(getConversionRate(msg.value) >= minimumUsd, \"Didn't send enough ETH\");\n        // 1eth = 1e18 = 1 * 10 ** 18 == 1000000000000000000\n        // could be msg.value >= 1e18\n\n        // msg.value.getConversionRate() === getConversionRate(msg.value)\n        require(msg.value.getConversionRate(priceFeed) >= MINIMUM_USD, \"Didn't send enough ETH\");\n        funders.push(msg.sender);\n        addressToAmountFunded[msg.sender] = msg.value;\n    }\n\n    function withdraw() payable public onlyOwner {\n        for(uint256 funderIndex = 0; funderIndex < funders.length ; funderIndex ++) {\n            address funder = funders[funderIndex];\n            addressToAmountFunded[funder] = 0;\n        }\n        funders = new address[](0);\n        // transfer\n        // payable(msg.sender).transfer(address(this).balance);\n\n        // send\n\n        // bool sendSuccess = payable(msg.sender).send(address(this).balance);\n        // require(sendSuccess, \"Send failed\");\n\n        // call\n        (bool success, ) = payable(msg.sender).call{value: address(this).balance}(\"\");\n        require(success, \"failed to withdraw\");\n    }\n\n    // Explainer from: https://solidity-by-example.org/fallback/\n    // Ether is sent to contract\n    //      is msg.data empty?\n    //          /   \\\n    //         yes  no\n    //         /     \\\n    //    receive()?  fallback()\n    //     /   \\\n    //   yes   no\n    //  /        \\\n    //receive()  fallback()\n\n    //important to handle the case if someone trigger a function that doesn't exist or just send eth to the contract\n    // otherwise we get eth in the balance but no record of funder\n    fallback() external payable {\n        fund();\n    }\n\n    receive() external payable {\n        fund();\n    }\n}\n"
+    },
+    "contracts/PriceConverter.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.8;\n\nimport \"@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol\";\n// to get rid of this : yarn add --dev @chainlink/contracts\n\nlibrary PriceConverter {\n    // We could make this public, but then we'd have to deploy it\n    function getPrice(AggregatorV3Interface priceFeed) internal view returns (uint256) {\n        // Goerli ETH / USD Address\n        // https://docs.chain.link/docs/ethereum-addresses/\n        // AggregatorV3Interface priceFeed = AggregatorV3Interface(\n        //     0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e\n        // );\n        (, int256 price, , , ) = priceFeed.latestRoundData();\n        // ETH/USD rate in 18 digit\n         // ETH in terms of USD\n        //returns 3000.00000000 ( 8 decimals ) we need 18 decimals\n        return uint256(price * 1e10); // 1**10\n    }\n\n\n    function getVersion() internal view returns (uint256){\n      // get the address of the right contract here  :https://docs.chain.link/docs/ethereum-addresses/\n      AggregatorV3Interface priceFeed = AggregatorV3Interface(0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e);\n      return priceFeed.version();\n    }\n\n    function getConversionRate(uint256 ethAmount, AggregatorV3Interface priceFeed)\n        internal\n        view\n        returns (uint256)\n    {\n        uint256 ethPrice = getPrice(priceFeed);\n        uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1000000000000000000; // 1e18\n        // the actual ETH/USD conversion rate, after adjusting the extra 0s.\n        return ethAmountInUsd;\n    }\n}\n"
+    },
+    "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ninterface AggregatorV3Interface {\n  function decimals() external view returns (uint8);\n\n  function description() external view returns (string memory);\n\n  function version() external view returns (uint256);\n\n  function getRoundData(uint80 _roundId)\n    external\n    view\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    );\n\n  function latestRoundData()\n    external\n    view\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    );\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
