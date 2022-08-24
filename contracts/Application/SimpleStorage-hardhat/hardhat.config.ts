@@ -34,13 +34,13 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     // run with the tests
-    enabled: false, // enable when needed
+    enabled: true, // enable when needed
     // optionnal
     // output with different currencies possible
     outputFile: "gas-report.txt",
     noColors: true,
     currency: "USD",
-    coinmarketcap: COINMARKETCAP_API_KEY,
+    // coinmarketcap: COINMARKETCAP_API_KEY,
     token: "MATIC",
   },
 };

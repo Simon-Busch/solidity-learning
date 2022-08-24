@@ -2,6 +2,7 @@
 pragma solidity ^0.8.8;
 
 import "./PriceConverter.sol";
+// import "hardhat/console.sol";
 // at the time of writing, goerli network to be selected
 
 error FundMe__NotOwner();
@@ -21,9 +22,9 @@ contract FundMe {
     //State variables
     uint256 public constant MINIMUM_USD = 50 * 1e18; // 1 * 10 ** 18
     address public immutable i_owner; // convention to name immutable var like this
-    address[] public funders;
-    mapping(address => uint256) public addressToAmountFunded;
-    AggregatorV3Interface public priceFeed;
+    address[] public s_funders;
+    mapping(address => uint256) public s_addressToAmountFunded;
+    AggregatorV3Interface public s_priceFeed;
 
     // Events
     modifier onlyOwner() {
@@ -33,7 +34,7 @@ contract FundMe {
 
     constructor(address priceFeedAddress) {
         i_owner = msg.sender;
-        priceFeed = AggregatorV3Interface(priceFeedAddress);
+        s_priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
     fallback() external payable {
@@ -47,23 +48,38 @@ contract FundMe {
     ///@notice this function funds the contract
     function fund() public payable {
         require(
-            msg.value.getConversionRate(priceFeed) >= MINIMUM_USD,
+            msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD,
             "Didn't send enough ETH"
         );
-        funders.push(msg.sender);
-        addressToAmountFunded[msg.sender] = msg.value;
+        s_funders.push(msg.sender);
+        s_addressToAmountFunded[msg.sender] = msg.value;
     }
 
     function withdraw() public payable onlyOwner {
         for (
             uint256 funderIndex = 0;
-            funderIndex < funders.length;
+            funderIndex < s_funders.length;
             funderIndex++
         ) {
-            address funder = funders[funderIndex];
-            addressToAmountFunded[funder] = 0;
+            address funder = s_funders[funderIndex];
+            s_addressToAmountFunded[funder] = 0;
         }
-        funders = new address[](0);
+        s_funders = new address[](0);
+        (bool success, ) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
+        require(success, "failed to withdraw");
+    }
+
+    function cheaperWithdraw() public payable onlyOwner {
+        address[] memory funders = s_funders;
+        // mappings can't be in memory
+        for (uint256 funderIndex = 0; funderIndex < funders.length ; funderIndex ++) {
+          address funder = funders[funderIndex];
+          s_addressToAmountFunded[funder] = 0;
+        }
+
+        s_funders = new address[](0);
         (bool success, ) = payable(msg.sender).call{
             value: address(this).balance
         }("");
