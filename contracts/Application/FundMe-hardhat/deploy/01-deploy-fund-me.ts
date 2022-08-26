@@ -28,7 +28,7 @@ const deployFundMe: DeployFunction = async function (
     args: [ethUsdPriceFeedAddress],
     log: true,
     // we need to wait if on a live network so we can verify properly
-    waitConfirmations: networkConfig[network.name].blockConfirmations || 0,
+    waitConfirmations: 6,
   });
   log(`FundMe deployed at ${fundMe.address}`);
 
