@@ -7,6 +7,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 import "hardhat/console.sol";
 
 error Lottery__NotEnoughETHEntered();
+error Lottery__TransferFailed();
 
 contract Lottery is VRFConsumerBaseV2 {
     /* State variables */
@@ -19,9 +20,14 @@ contract Lottery is VRFConsumerBaseV2 {
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 1;
 
+    /*Lottery variables */
+
+    address private s_recentWinner;
+
     /*Events */
     event LotteryEnter(address indexed player);
     event RequestedLotteryWinner(uint256 indexed requestId);
+    event WinnerPicked(address indexed winner);
 
     /* Constructor */
     constructor(
@@ -60,10 +66,19 @@ contract Lottery is VRFConsumerBaseV2 {
         emit RequestedLotteryWinner(requestId);
     }
 
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
-        internal
-        override
-    {}
+    function fulfillRandomWords(
+        uint256, /*requestId*/ // is commented because the function needs to know we passed it but we don't actually need it.
+        uint256[] memory randomWords
+    ) internal override {
+        uint256 indexOfWinner = randomWords[0] % s_players.length;
+        address payable recentWinner = s_players[indexOfWinner];
+        s_recentWinner = recentWinner;
+        (bool success, ) = recentWinner.call{value: address(this).balance}("");
+        if (!success) {
+            revert Lottery__TransferFailed();
+        }
+        emit WinnerPicked(recentWinner);
+    }
 
     /* View / pure functions */
     function getEntranceFee() public view returns (uint256) {
@@ -72,6 +87,10 @@ contract Lottery is VRFConsumerBaseV2 {
 
     function getPlayer(uint256 index) public view returns (address) {
         return s_players[index];
+    }
+
+    function getRecentWinner() public view returns (address) {
+        return s_recentWinner;
     }
 
     fallback() external payable {}
