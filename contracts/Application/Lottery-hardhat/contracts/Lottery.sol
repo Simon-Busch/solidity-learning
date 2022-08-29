@@ -6,7 +6,7 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 import "hardhat/console.sol";
 
-error Lottery__NotEnoughETHEntered();
+error Lottery__SendMoreToEnterLottery();
 error Lottery__TransferFailed();
 error Lottery__LoteryNotOpen();
 error Lottery__upKeepNotNeeded(
@@ -72,7 +72,7 @@ contract Lottery is VRFConsumerBaseV2, KeeperCompatibleInterface {
     function enterLottery() public payable {
         // require(msg.value > i_entranceFee, "Not Enough ETH!");
         if (msg.value < i_entranceFee) {
-            revert Lottery__NotEnoughETHEntered();
+            revert Lottery__SendMoreToEnterLottery();
         }
 
         if (s_lotteryState != LotteryState.OPEN) {

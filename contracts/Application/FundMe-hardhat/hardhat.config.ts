@@ -39,7 +39,7 @@ const config: HardhatUserConfig = {
   },
   // include: ["./hardhat.config.ts", "./scripts", "./deploy", "./test"],
   gasReporter: {
-    enabled: true,
+    enabled: false,
     outputFile: "gas-report.txt",
     noColors: true,
     currency: "USD",
