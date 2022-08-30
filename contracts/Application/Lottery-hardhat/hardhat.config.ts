@@ -42,6 +42,9 @@ const config: HardhatUserConfig = {
     player: {
       default: 1,
     }
+  },
+  mocha: { // set timout for tests
+    timeout: 500000, // 200 seconds max for running tests
   }
 };
 
