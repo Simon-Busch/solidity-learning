@@ -42,7 +42,8 @@ export const networkConfig: networkConfigInfo = {
 
 export const developmentChains = ["hardhat", "localhost"];
 export const VERIFICATION_BLOCK_CONFIRMATIONS = 6;
-
+export const frontEndContractsFile = "../lottery-nextjs/constants/contractAddresses.json";
+export const frontEndAbi = "../lottery-nextjs/constants/abi.json";
 // NB: once subscription is created and contract deployed on Goerli
 // add it to the subscription
 // Register a keeper : https://keepers.chain.link/goerli
