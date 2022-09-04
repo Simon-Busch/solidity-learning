@@ -3,19 +3,24 @@ import { networkConfig } from "../helper-hardhat-config";
 import { Address } from "hardhat-deploy/dist/types";
 import { BigNumber } from "ethers";
 import { getWeth, AMOUNT } from "./getWeth";
-import { ILendingPool } from "../typechain-types/index";
+import { ILendingPool, ILendingPoolAddressesProvider } from "../typechain-types";
 
 async function main() {
     /** 1. Deposit collateral ETH / WETH */
     // the protocol treats everything as an ERC20 token
     await getWeth();
     const { deployer } = await getNamedAccounts();
+    const chainid = network.config.chainId;
+    if (!chainid) {
+      console.log("Please use hardhat localhost");
+    }
+    const daiTokenAddress = networkConfig[chainid!].daiToken!;
 
     const lendingPool = await getLendingPool(deployer);
     console.log(`LendingPool address = ${lendingPool.address}`);
 
     //deposit
-    const wethTokenAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+    const wethTokenAddress = networkConfig[chainid!].wethToken!;
 
     //approve
     await approveERC20(wethTokenAddress, lendingPool.address, AMOUNT, deployer);
@@ -30,27 +35,92 @@ async function main() {
     // How much we can borrow ?
     // https://docs.aave.com/developers/v/2.0/the-core-protocol/lendingpool#getuseraccountdata
     // interesting reading: https://docs.aave.com/developers/v/2.0/guides/liquidations
-    let {availableBorrowsETH, totalDebtETH} = await getBorrowUserData(lendingPool, deployer);
+    let { availableBorrowsETH, totalDebtETH } = await getBorrowUserData(
+        lendingPool,
+        deployer
+    );
 
     // What is the convertion rate with DAI ?
-    const daiPrice = await getDaiPrice()
+    const daiPrice = await getDaiPrice();
+
+    // we know what we can borow in ETH ; convert this amount to DAI
+    const amountDaiToBorrow =
+        availableBorrowsETH.toString() * 0.95 * (1 / daiPrice.toNumber());
+    // 0.95 because in our case we don't want to spend 100% of what we have
+    console.log(`You can borrow ${amountDaiToBorrow} DAI`);
+    const amountDaiToBorrowWei = ethers.utils.parseEther(
+        amountDaiToBorrow.toString()
+    );
+
+    // Borrow
+    console.log(`Starting to borrow DAI ...`);
+    await borrowDai(
+        daiTokenAddress!,
+        lendingPool,
+        amountDaiToBorrowWei.toString(),
+        deployer
+    );
+
+    // Repay
+    console.log("----");
+    await getBorrowUserData(lendingPool, deployer);
+    console.log("----");
+    await repay(amountDaiToBorrowWei, daiTokenAddress!, lendingPool, deployer);
+    console.log("----");
+    await getBorrowUserData(lendingPool, deployer);
+    console.log("----");
+    console.log("----");
 }
 
-async function getDaiPrice () {
-  // 0x773616E4d11A78F511299002da57A0a94577F1f4 DAI/ETH Mainnet https://docs.chain.link/docs/ethereum-addresses/
-  const daiEthPriceFeed = await ethers.getContractAt("AggregatorV3Interface", "0x773616E4d11A78F511299002da57A0a94577F1f4");
-  // no need to connect it to the deployer account as we won't be sending transactions
-  // reading don't need a signer
-  const price = (await daiEthPriceFeed.latestRoundData())[1]; // [1] as we just need the price returned here in the available datas
-  console.log(`The DAI/ETH Price is ${price.toString()}`)
-  return price;
+async function repay(
+    amount: any,
+    daiAddress: string,
+    lendingPool: any,
+    account: string
+) {
+    await approveERC20(daiAddress, lendingPool.address, amount, account);
+    console.log("Starting to repay...");
+    const repayTx = await lendingPool.repay(daiAddress, amount, 1, account);
+    await repayTx.wait(1);
+    console.log("Payed back successfully ✅");
+}
+
+async function borrowDai(
+    daiAddress: string,
+    lendingPool: any,
+    amountDaiToBorrowWei: string,
+    account: string
+) {
+    const borrowTx = await lendingPool.borrow(
+        daiAddress,
+        amountDaiToBorrowWei,
+        1,
+        0,
+        account
+    );
+    await borrowTx.wait(1);
+    console.log(`You have borrowed 💰`);
+    // https://docs.aave.com/developers/v/2.0/the-core-protocol/lendingpool#borrow
+}
+
+async function getDaiPrice() {
+    // 0x773616E4d11A78F511299002da57A0a94577F1f4 DAI/ETH Mainnet https://docs.chain.link/docs/ethereum-addresses/
+    const daiEthPriceFeed = await ethers.getContractAt(
+        "AggregatorV3Interface",
+        "0x773616E4d11A78F511299002da57A0a94577F1f4"
+    );
+    // no need to connect it to the deployer account as we won't be sending transactions
+    // reading don't need a signer
+    const price = (await daiEthPriceFeed.latestRoundData())[1]; // [1] as we just need the price returned here in the available datas
+    console.log(`The DAI/ETH Price is ${price.toString()}`);
+    return price;
 }
 
 async function getBorrowUserData(lendingPool: any, account: string) {
     const { totalCollateralETH, totalDebtETH, availableBorrowsETH } =
         await lendingPool.getUserAccountData(account);
     console.log(`You have ${totalCollateralETH} worth of ETH`);
-    console.log(`You Have a total debt of ${totalDebtETH} woth of ETH`);
+    console.log(`You Have a total of ${totalDebtETH} of ETH borrowed`);
     console.log(`You can borrow: ${availableBorrowsETH}`);
     return { totalDebtETH, availableBorrowsETH };
 }
