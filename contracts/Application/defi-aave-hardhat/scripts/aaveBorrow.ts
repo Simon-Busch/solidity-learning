@@ -76,7 +76,7 @@ async function repay(
     amount: any,
     daiAddress: string,
     lendingPool: any,
-    account: string
+    account: Address
 ) {
     await approveERC20(daiAddress, lendingPool.address, amount, account);
     console.log("Starting to repay...");
@@ -89,7 +89,7 @@ async function borrowDai(
     daiAddress: string,
     lendingPool: any,
     amountDaiToBorrowWei: string,
-    account: string
+    account: Address
 ) {
     const borrowTx = await lendingPool.borrow(
         daiAddress,
@@ -116,7 +116,7 @@ async function getDaiPrice() {
     return price;
 }
 
-async function getBorrowUserData(lendingPool: any, account: string) {
+async function getBorrowUserData(lendingPool: any, account: Address) {
     const { totalCollateralETH, totalDebtETH, availableBorrowsETH } =
         await lendingPool.getUserAccountData(account);
     console.log(`You have ${totalCollateralETH} worth of ETH`);
@@ -129,7 +129,7 @@ async function approveERC20(
     erc20Address: string,
     spenderAddress: string,
     amountToSpend: string,
-    account: string
+    account: Address
 ) {
     const erc20Token = await ethers.getContractAt(
         "IERC20",
@@ -142,7 +142,7 @@ async function approveERC20(
     console.log("Approved");
 }
 
-async function getLendingPool(account: string) {
+async function getLendingPool(account: Address) {
     // Address : 0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5
     // https://docs.aave.com/developers/v/2.0/deployed-contracts/deployed-contracts
     const lendingPoolAddressesProvider = await ethers.getContractAt(
