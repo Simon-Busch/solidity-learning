@@ -1,0 +1,11 @@
+{
+  "name": "LAZ",
+  "description": "Amazing neon page!",
+  "image": "https://ipfs.io/ipfs/QmdocV9tSr7qvRe3qmC3J7AwWw4D5pj8gnMPnWrneZjJfD?filename=neon-page.png",
+  "attributes": [
+    {
+      "trait_type": "lazer eye",
+      "value": 100
+    }
+  ]
+}
