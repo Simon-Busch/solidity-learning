@@ -1,36 +1,55 @@
-import { ethers } from 'hardhat'
+import { ethers } from "hardhat";
 
 export interface networkConfigItem {
-  name?: string
-  wethToken?: string
-  lendingPoolAddressesProvider?: string
-  daiEthPriceFeed?: string
-  daiToken?: string
-  blockConfirmations?: number
-  ethUsdPriceFeed?: string
+    name?: string;
+    subscriptionId?: string;
+    gasLane?: string;
+    keepersUpdateInterval?: string;
+    entranceFee?: string;
+    callbackGasLimit?: string;
+    vrfCoordinatorV2?: string;
+    mintFee?: string;
 }
 
 export interface networkConfigInfo {
-  [key: number]: networkConfigItem
+    [key: number]: networkConfigItem;
 }
 
 // https://docs.chain.link/docs/vrf/v2/supported-networks/#goerli-testnet
 
 export const networkConfig: networkConfigInfo = {
-  31337: {
-    name: "localhost",
-    wethToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    lendingPoolAddressesProvider: "0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5",
-    daiEthPriceFeed: "0x773616E4d11A78F511299002da57A0a94577F1f4",
-    daiToken: "0x6B175474E89094C44Da98b954EedeAC495271d0F"
-  },
-  5: {
-      name: "goerli",
-  },
-  1: {
-      name: "mainnet",
-  },
-}
+    31337: {
+        name: "localhost",
+        subscriptionId: "772", // subscription created on https://vrf.chain.link/goerli
+        gasLane:
+            "0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15", // 30 gwei
+        keepersUpdateInterval: "30",
+        entranceFee: ethers.utils.parseEther("0.01").toString(), // 0.01 ETH
+        callbackGasLimit: "2500000", // 2,500,000 gas
+        mintFee: "10000000000000000", // 0.01 ETH
+    },
+    5: {
+        name: "goerli",
+        subscriptionId: "772", // subscription created on https://vrf.chain.link/goerli
+        gasLane:
+            "0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15", // 30 gwei
+        keepersUpdateInterval: "30",
+        entranceFee: ethers.utils.parseEther("0.01").toString(), // 0.01 ETH
+        callbackGasLimit: "2500000", // 2,500,000 gas
+        vrfCoordinatorV2: "0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D",
+        mintFee: "10000000000000000",
+    },
+    1: {
+        name: "mainnet",
+        keepersUpdateInterval: "30",
+    },
+};
 
 export const developmentChains = ["hardhat", "localhost"];
 export const VERIFICATION_BLOCK_CONFIRMATIONS = 6;
+export const frontEndContractsFile =
+    "../lottery-nextjs/constants/contractAddresses.json";
+export const frontEndAbi = "../lottery-nextjs/constants/abi.json";
+// NB: once subscription is created and contract deployed on Goerli
+// add it to the subscription
+// Register a keeper : https://keepers.chain.link/goerli

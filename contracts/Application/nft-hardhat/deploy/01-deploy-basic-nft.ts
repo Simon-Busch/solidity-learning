@@ -13,7 +13,7 @@ const deployBasicNft: DeployFunction = async (
     const { deploy, log } = deployments;
     const { deployer } = await getNamedAccounts();
     const chainId: number = network.config.chainId!;
-    log("----------------------------------------------------");
+    log("----------------------------------");
     const args: any[] = [];
     const waitBlockConfirmations = developmentChains.includes(network.name)
         ? 1
@@ -33,6 +33,7 @@ const deployBasicNft: DeployFunction = async (
         log("Verifying...");
         await verify(basicNft.address, args);
     }
+    log("----------------------------------");
 };
 export default deployBasicNft;
 deployBasicNft.tags = ["all", "basicNft"];
