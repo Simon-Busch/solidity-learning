@@ -9,6 +9,7 @@ export interface networkConfigItem {
     callbackGasLimit?: string;
     vrfCoordinatorV2?: string;
     mintFee?: string;
+    ethUsdPriceFeed?: string;
 }
 
 export interface networkConfigInfo {
@@ -27,6 +28,7 @@ export const networkConfig: networkConfigInfo = {
         entranceFee: ethers.utils.parseEther("0.01").toString(), // 0.01 ETH
         callbackGasLimit: "2500000", // 2,500,000 gas
         mintFee: "10000000000000000", // 0.01 ETH
+        ethUsdPriceFeed: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e",
     },
     5: {
         name: "goerli",
@@ -38,6 +40,7 @@ export const networkConfig: networkConfigInfo = {
         callbackGasLimit: "2500000", // 2,500,000 gas
         vrfCoordinatorV2: "0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D",
         mintFee: "10000000000000000",
+        ethUsdPriceFeed: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e",
     },
     1: {
         name: "mainnet",

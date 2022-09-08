@@ -6,6 +6,8 @@ import { ethers } from "hardhat";
 const BASE_FEE = ethers.utils.parseEther("0.25"); // 0.25 is the prenium, it costs 0.25 LINK
 // calculated value based on gas price of the chain
 const GAS_PRICE_LINK = 1e9; // link per gas, is this the gas lane? // 0.000000001 LINK per gas
+const DECIMALS = "18";
+const INITIAL_PRICE = ethers.utils.parseUnits("2000", "ether");
 
 const deployMocks: DeployFunction = async function (
     hre: HardhatRuntimeEnvironment
@@ -23,15 +25,13 @@ const deployMocks: DeployFunction = async function (
             log: true,
             args: args,
         });
-        log("Mocks Deployed!");
-        log("----------------------------------");
+        await deploy("MockV3Aggregator",{
+          from: deployer,
+          log:true,
+          args:[DECIMALS,INITIAL_PRICE]
+        })
 
-        log(
-            "You are deploying to a local network, you'll need a local network running to interact"
-        );
-        log(
-            "Please run `yarn hardhat console --network localhost` to interact with the deployed smart contracts!"
-        );
+        log("Mocks Deployed!");
         log("----------------------------------");
     }
 };

@@ -4,11 +4,9 @@ import verify from "../utils/verify";
 import {
     developmentChains,
     networkConfig,
-    VERIFICATION_BLOCK_CONFIRMATIONS,
 } from "../helper-hardhat-config";
 import { ethers } from "hardhat";
 import { storeImages, storeTokeUriMetadata } from "../utils/uploadToPinata";
-import { string } from "hardhat/internal/core/params/argumentTypes";
 
 const imagesLocation = "./images/randomNft/";
 
